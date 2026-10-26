@@ -135,6 +135,19 @@ has no Hyprland equivalent.
 - NVIDIA / 32-bit / portal setup is intentionally left out — this repo is just
   the user config.
 
+## For OpenCode / AI agents
+
+Project instructions live in [`AGENTS.md`](AGENTS.md). Key rules for automation:
+
+- Run `./install.sh --dry-run` before any real install.
+- Never commit secrets; `zsh/.zshrc` only sources `~/.config/secrets.zsh`.
+- Only `niri/.config/niri/config.kdl` is read by Niri.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE). Third-party/vendored components retain their
+upstream licenses (see the Credits section).
+
 ## Credits
 
 - Neovim config based on [jdhao/nvim-config](https://github.com/jdhao/nvim-config)
