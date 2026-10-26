@@ -70,7 +70,7 @@ install_path() {
     if (( ! DRY_RUN )) && [[ -f "$dest" || -d "$dest" ]]; then
       grep -rlI --exclude-dir=.git '/home/god' "$dest" 2>/dev/null | while read -r f; do
         run sed -i "s|/home/god|$HOME|g" "$f"
-      done
+      done || true
     fi
   fi
   log "installed $dest ($MODE)"

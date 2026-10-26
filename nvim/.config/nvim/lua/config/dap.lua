@@ -11,7 +11,7 @@ local function get_python_path()
   if vim.fn.executable(venv_path) == 1 then
     return venv_path
   end
-  return '/home/god/.config/nvim/.venv/bin/python' -- Fallback to nvim venv
+  return 'python3' -- Fallback to system python (install debugpy there)
 end
 
 dap.adapters.python = {
