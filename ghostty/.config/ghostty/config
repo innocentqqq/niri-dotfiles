@@ -1,0 +1,52 @@
+background = #000000
+foreground = #d0d0d0
+background-opacity = 0.85
+custom-shader-animation = always
+cursor-color = #ffffff
+selection-background = #444444
+selection-foreground = #ffffff
+cursor-style = bar
+adjust-cursor-thickness = 15
+cursor-style-blink = true
+shell-integration-features = no-cursor
+font-size = 9.3
+# Split to the right
+keybind = ctrl+shift+d=new_split:right
+
+# Split downward
+keybind = ctrl+shift+s=new_split:down
+
+# Automatic direction
+keybind = ctrl+shift+a=new_split:auto
+
+keybind = alt+h=goto_split:left
+keybind = alt+j=goto_split:down
+keybind = alt+k=goto_split:up
+keybind = alt+l=goto_split:right
+
+keybind = alt+e=equalize_splits
+keybind = alt+z=toggle_split_zoom
+theme = No Clown Fiesta
+keybind = ctrl+shift+r=reload_config
+
+# Available Shaders (Uncomment to use)
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/smoke-and-ghost.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/bettercrt.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/spotlight.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/starfield.glsl
+custom-shader = /home/god/.config/ghostty/ghostty-shaders/starfield-v2.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/in-game-crt.glsl
+custom-shader = /home/god/.config/ghostty/ghostty-shaders/cursor_blaze.glsl
+custom-shader = /home/god/.config/ghostty/ghostty-shaders/in-game-crt-cursor.glsl
+custom-shader = /home/god/.config/ghostty/ghostty-shaders/bloom.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/just-snow.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/animated-gradient-shader.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/gears-and-belts.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/glitchy.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/underwater.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/sin-interference.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/tft.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/cineShader-Lava.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/gradient-background.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/starfield-colors.glsl
+# custom-shader = /home/god/.config/ghostty/ghostty-shaders/fireworks-rockets.glsl

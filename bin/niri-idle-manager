@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Check if any media is currently playing (YouTube, movies, music, etc.)
+if playerctl status 2>/dev/null | grep -q "Playing"; then
+    exit 0
+fi
+
+# Lock the screen before sleeping
+/home/god/.local/bin/niri-locker
+
+# Brief pause to ensure lock is active
+sleep 0.5
+
+# Suspend the system
+systemctl suspend

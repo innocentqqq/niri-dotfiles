@@ -1,0 +1,53 @@
+#!/bin/sh
+# Wallpaper Selector for Niri (Includes all bspwm rices)
+
+# Base directories
+rices_dir="$HOME/.config/bspwm/rices"
+cache_base_dir="$HOME/.cache/niri/walls"
+rofi_theme="$HOME/.config/bspwm/config/rofi-themes/WallSelect.rasi"
+
+# Ensure cache directory exists
+[ -d "$cache_base_dir" ] || mkdir -p "$cache_base_dir"
+
+# Find all wallpapers from all rices
+# We use a temp file to store the mapping of filename to full path
+temp_map=$(mktemp)
+
+# Scan all rices for wallpapers
+for rice in "$rices_dir"/*; do
+    if [ -d "$rice/walls" ]; then
+        rice_name=$(basename "$rice")
+        find "$rice/walls" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) | while read -r img; do
+            base=$(basename "$img")
+            # Create a unique name in cache to avoid collisions between rices
+            # Format: rice_name-filename
+            cache_name="${rice_name}-${base}"
+            
+            # Save mapping: unique_name|full_path
+            echo "${cache_name}|${img}" >> "$temp_map"
+            
+            # Generate thumbnail if it doesn't exist
+            if [ ! -f "$cache_base_dir/$cache_name" ]; then
+                magick "$img" -resize 500x500^ -gravity center -extent 500x500 "$cache_base_dir/$cache_name"
+            fi
+        done
+    fi
+done
+
+# Select wallpaper using rofi
+# We pass the unique names (with rice prefix) to rofi but show icons from cache
+wall_selection_line=$(cat "$temp_map" | cut -d'|' -f1 | sort | while read -r cache_name; do
+    printf "%s\000icon\037%s/%s\n" "$cache_name" "$cache_base_dir" "$cache_name"
+done | rofi -dmenu -theme "$rofi_theme")
+
+# Apply wallpaper if one was selected
+if [ -n "$wall_selection_line" ]; then
+    # Extract the full path from the mapping
+    full_path=$(grep "^${wall_selection_line}|" "$temp_map" | cut -d'|' -f2)
+    if [ -n "$full_path" ]; then
+        awww img "$full_path"
+    fi
+fi
+
+# Cleanup
+rm "$temp_map"

@@ -1,0 +1,14 @@
+# Secrets — never commit these
+secrets.zsh
+*.secret
+.env
+
+# Editor / OS junk
+.DS_Store
+*.swp
+*~
+__pycache__/
+.venv/
+
+# Shader preview images are large and live upstream
+ghostty/.config/ghostty/ghostty-shaders/theme/

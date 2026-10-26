@@ -1,0 +1,327 @@
+input {
+    keyboard {
+        xkb {
+        }
+        numlock
+    }
+    touchpad {
+        tap
+        natural-scroll
+    }
+    mouse {
+        natural-scroll
+    }
+    warp-mouse-to-focus
+}
+
+cursor {
+    hide-when-typing
+}
+
+gestures {
+}
+
+layout {
+    gaps 5
+    center-focused-column "never"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        off
+    }
+
+    border {
+        width 2
+        active-gradient from="#ff00d4" to="#00f7ff" angle=45
+    }
+
+    shadow {
+        on
+        softness 20
+        spread 5
+        offset x=0 y=5
+    }
+}
+
+prefer-no-csd
+
+blur {
+    passes 3
+    offset 3.0
+    noise 0.03
+    saturation 1.5
+}
+
+animations {
+    window-open {
+        // TEST: bouncy spring pop (underdamped spring overshoots once at the end).
+        spring damping-ratio=0.7 stiffness=1100 epsilon=0.0001
+    }
+    window-close {
+        duration-ms 1000
+        curve "linear"
+        // The whole window drops downward while shrinking toward its center,
+        // vanishing as it goes (no folding). Slowest setting: 1000 ms.
+        custom-shader r"
+            vec4 close_color(vec3 coords_geo, vec3 size_geo) {
+                // Accelerating fall progress.
+                float p = niri_clamped_progress;
+                float t = p * p;
+
+                vec2 coords = coords_geo.xy;
+
+                // Shrink toward the center (inverse mapping = content compresses).
+                float scale = 1.0 - 0.75 * t;              // 1 -> 0.25
+                coords = 0.5 + (coords - 0.5) / max(scale, 0.001);
+
+                // Drop the whole window downward by up to 120 logical pixels.
+                coords.y -= (120.0 * t) / max(size_geo.y, 1.0);
+
+                // Sample the window texture.
+                vec3 coords_tex = niri_geo_to_tex * vec3(coords, 1.0);
+                vec4 color = texture2D(niri_tex, coords_tex.st);
+
+                // Hide the parts that have dropped outside the window bounds.
+                if (coords.x < 0.0 || coords.x > 1.0
+                        || coords.y < 0.0 || coords.y > 1.0)
+                    color = vec4(0.0);
+
+                // Fade out during the fall.
+                return color * (1.0 - p);
+            }
+        "
+    }
+    window-resize {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.001
+    }
+    window-movement {
+        spring damping-ratio=1.0 stiffness=600 epsilon=0.0001
+    }
+    overview-open-close {
+        spring damping-ratio=1.0 stiffness=900 epsilon=0.0001
+    }
+    workspace-switch {
+        spring damping-ratio=0.8 stiffness=1200 epsilon=0.00001
+    }
+    horizontal-view-movement {
+        spring damping-ratio=1.0 stiffness=700 epsilon=0.0001
+    }
+}
+
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+
+window-rule {
+    match app-id=r"^com\.mitchellh\.ghostty$"
+    default-column-width {}
+    draw-border-with-background false
+}
+
+window-rule {
+    match app-id=r"^org\.gnome\.Nautilus$"
+    opacity 0.85
+    background-effect {
+        blur true
+        xray true
+    }
+    draw-border-with-background false
+}
+
+window-rule {
+    match app-id=r"^ignis$"
+    block-out-from "screen-capture"
+}
+
+layer-rule {
+    match namespace=r"^Launcher$"
+    background-effect {
+        blur true
+        xray true
+    }
+}
+
+spawn-at-startup "awww-daemon"
+spawn-at-startup "swayidle" "-w" "timeout" "300" "/home/god/.local/bin/niri-idle-manager" "resume" "niri msg action power-on-monitors" "before-sleep" "/home/god/.local/bin/niri-locker"
+spawn-at-startup "env" "GSK_RENDERER=cairo" "ignis" "init"
+
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    Mod+Return hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
+    Mod+Space hotkey-overlay-title="Open Launcher" { spawn "ignis" "toggle-window" "Launcher"; }
+    Mod+B hotkey-overlay-title="Open Brave" { spawn "brave"; }
+    Mod+E hotkey-overlay-title="Open File Manager: nautilus" { spawn "nautilus"; }
+    Mod+W hotkey-overlay-title="Open Network Settings" { spawn "ignis" "run-command" "open-settings-network"; }
+    Mod+P hotkey-overlay-title="Open Power Menu" { spawn "ignis" "toggle-window" "PowerMenu"; }
+    Mod+Alt+L hotkey-overlay-title="Lock Screen" { spawn "/home/god/.local/bin/niri-locker"; }
+
+    Mod+O repeat=false { toggle-overview; }
+
+    Mod+X repeat=false { close-window; }
+    Mod+Shift+X repeat=false { close-window; }
+
+    Ctrl+H     { focus-column-left; }
+    Ctrl+J     { focus-window-down; }
+    Ctrl+K     { focus-window-up; }
+    Ctrl+L     { focus-column-right; }
+
+    Ctrl+Mod+H     { move-column-left; }
+    Ctrl+Mod+J     { move-window-to-workspace-down; }
+    Ctrl+Mod+K     { move-window-to-workspace-up; }
+    Ctrl+Mod+L     { move-column-right; }
+
+    Mod+Left  { focus-workspace-up; }
+    Mod+Right { focus-workspace-down; }
+
+    Mod+Home { focus-column-first; }
+    Mod+End  { focus-column-last; }
+    Mod+Ctrl+Home { move-column-to-first; }
+    Mod+Ctrl+End  { move-column-to-last; }
+
+    Mod+Shift+Left  { focus-monitor-left; }
+    Mod+Shift+Down  { focus-monitor-down; }
+    Mod+Shift+Up    { focus-monitor-up; }
+    Mod+Shift+Right { focus-monitor-right; }
+    Mod+Shift+H     { focus-monitor-left; }
+    Mod+Shift+J     { focus-monitor-down; }
+    Mod+Shift+K     { focus-monitor-up; }
+    Mod+Shift+L     { focus-monitor-right; }
+
+    Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
+    Mod+Shift+Ctrl+H     { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
+
+    Mod+Page_Down      { focus-workspace-down; }
+    Mod+Page_Up        { focus-workspace-up; }
+    Mod+U              { focus-workspace-down; }
+    Mod+I              { focus-workspace-up; }
+    Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
+    Mod+Ctrl+U         { move-column-to-workspace-down; }
+    Mod+Ctrl+I         { move-column-to-workspace-up; }
+
+    Mod+Shift+Page_Down { move-workspace-down; }
+    Mod+Shift+Page_Up   { move-workspace-up; }
+    Mod+Shift+U         { move-workspace-down; }
+    Mod+Shift+I         { move-workspace-up; }
+
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    Mod+Ctrl+WheelScrollUp cooldown-ms=150 { move-column-to-workspace-up; }
+
+    Mod+WheelScrollRight      { focus-column-right; }
+    Mod+WheelScrollLeft       { focus-column-left; }
+    Mod+Ctrl+WheelScrollRight { move-column-right; }
+    Mod+Ctrl+WheelScrollLeft  { move-column-left; }
+
+    Mod+Shift+WheelScrollDown      { focus-column-right; }
+    Mod+Shift+WheelScrollUp        { focus-column-left; }
+    Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+    Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+
+    Mod+Comma  { consume-window-into-column; }
+    Mod+Period { expel-window-from-column; }
+
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-column-width-back; }
+
+    Mod+Ctrl+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R { reset-window-height; }
+
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+
+    Mod+M { maximize-window-to-edges; }
+
+    Mod+Ctrl+F { expand-column-to-available-width; }
+
+    Mod+C { center-column; }
+
+    Mod+Ctrl+C { center-visible-columns; }
+
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+
+    Mod+V       { toggle-window-floating; }
+    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
+    XF86AudioMute allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ toggle"; }
+    XF86AudioMicMute allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ toggle"; }
+
+    XF86AudioPlay allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioStop allow-when-locked=true { spawn-sh "playerctl stop"; }
+    XF86AudioPrev allow-when-locked=true { spawn-sh "playerctl previous"; }
+    XF86AudioNext allow-when-locked=true { spawn-sh "playerctl next"; }
+
+    XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+10%"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "10%-"; }
+
+    Print { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print { screenshot-window; }
+    Ctrl+Shift+S { screenshot; }
+
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+    Mod+Shift+E { quit; }
+    Ctrl+Alt+Delete { quit; }
+
+    Mod+Shift+P { power-off-monitors; }
+}
+
+overview {
+    zoom 0.5
+}
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+
+// genie top-left window animations (custom shaders)
+
+// genie fold shaders v2

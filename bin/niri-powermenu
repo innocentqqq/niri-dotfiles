@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# Power menu options
+# Using traditional icons and text
+entries="  Shutdown\n  Reboot\n󰌾  Lock\n󰍃  Logout\n  Suspend"
+
+# Run wofi in dmenu mode
+# Location 3 is top right
+# xoffset moves it left from the right edge
+# yoffset moves it down from the top edge
+selected=$(echo -e "$entries" | wofi --show dmenu \
+    --width 180 \
+    --height 240 \
+    --location 3 \
+    --xoffset -12 \
+    --yoffset 52 \
+    --style ~/.config/wofi/powermenu.css \
+    --cache-file /dev/null \
+    --hide-search \
+    --no-actions \
+    --matching fuzzy)
+
+case $selected in
+  *Shutdown)
+    systemctl poweroff
+    ;;
+  *Reboot)
+    systemctl reboot
+    ;;
+  *Lock)
+    /home/god/.local/bin/niri-locker
+    ;;
+  *Logout)
+    niri msg action quit
+    ;;
+  *Suspend)
+    systemctl suspend
+    ;;
+esac

@@ -1,0 +1,48 @@
+#!/bin/sh
+# Niri Locker - Replicates bspwm ScreenLocker using swaylock-effects
+
+# Extract colors (similar to bspwm ScreenLocker)
+bg="1D1F28"
+fg="8897F4"
+ring="1D1F28"
+wrong="F37F97"
+date="8897F4"
+verify="5ADECD"
+
+# Get current wallpaper from awww
+# Format of awww query: ": eDP-1: 1920x1080, scale: 1, currently displaying: image: /path/to/wall.webp"
+current_wall=$(awww query | grep -oP 'image: \K.*')
+
+# Fallback if no wallpaper detected
+[ -z "$current_wall" ] && current_wall="$HOME/.cache/current_wall"
+[ -f "$current_wall" ] || current_wall="/usr/share/backgrounds/default.png" # Safe fallback
+
+swaylock \
+    --screenshots \
+    --clock \
+    --indicator \
+    --indicator-radius 100 \
+    --indicator-thickness 7 \
+    --effect-blur 7x5 \
+    --effect-vignette 0.5:0.5 \
+    --ring-color "$ring" \
+    --key-hl-color "$verify" \
+    --text-color "$fg" \
+    --line-color "$bg" \
+    --inside-color "${bg}88" \
+    --separator-color "$verify" \
+    --inside-ver-color "$verify" \
+    --ring-ver-color "$verify" \
+    --inside-wrong-color "$wrong" \
+    --ring-wrong-color "$wrong" \
+    --text-ver-color "$bg" \
+    --text-wrong-color "$bg" \
+    --datestr "%a, %d %b" \
+    --timestr "%H:%M" \
+    --fade-in 0.2 \
+    --ignore-empty-password \
+    --show-failed-attempts \
+    --daemonize
+
+# If you specifically want the SAME image without blur as background:
+# swaylock -i "$current_wall" ... (instead of --screenshots)
